@@ -263,6 +263,29 @@ tr:hover td { background: rgba(37,99,235,0.05); }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 .qa-btn:active, .btn:active, .report-card:active, .nav-item:active { transform: scale(0.97); }
 button { -webkit-tap-highlight-color: transparent; }
+
+/* ===================== FEED DE MOVIMIENTOS EN MOBILE (tabla -> tarjetas) ===================== */
+@media (max-width: 768px) {
+  .table-wrap { border: none; }
+  .table-wrap table, .table-wrap thead, .table-wrap tbody, .table-wrap tr, .table-wrap td { display: block; width: 100%; }
+  .table-wrap thead { display: none; }
+  .table-wrap tr.mov-row {
+    background: var(--white); border: 1px solid var(--gray-light); border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 10px; position: relative; padding-left: 16px;
+    box-shadow: var(--shadow);
+  }
+  .table-wrap tr.mov-row::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; }
+  .table-wrap tr.mov-row.ingreso::before { background: var(--success); }
+  .table-wrap tr.mov-row.transferencia::before { background: var(--info); }
+  .table-wrap td { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 5px 0; border: none; text-align: right; font-size: 13.5px; }
+  .table-wrap td::before { content: attr(data-label); font-size: 10.5px; font-weight: 700; color: var(--gray); text-transform: uppercase; letter-spacing: 0.4px; text-align: left; flex-shrink: 0; }
+  .table-wrap td[data-label="Tipo"] { padding-bottom: 8px; border-bottom: 1px dashed var(--gray-light); margin-bottom: 4px; }
+  .table-wrap td[data-label="Tipo"]::before { display: none; }
+  .table-wrap td.td-articulo { font-weight: 700; font-family: var(--font-display); font-size: 15px; }
+  .table-wrap td.td-actions { justify-content: flex-end; padding-top: 8px; margin-top: 4px; border-top: 1px dashed var(--gray-light); }
+  .table-wrap td.td-actions .row-actions { width: 100%; justify-content: flex-end; }
+}
+
 </style>
 <base target="_blank">
 <base target="_blank">
@@ -1106,28 +1129,28 @@ function renderDashMovimientos() {
 function rowHTML(m) {
   const tipoClass = m.tipo === 'ingreso' ? 'badge-ingreso' : 'badge-transferencia';
   const tipoIcon = m.tipo === 'ingreso' ? 'fa-arrow-down' : 'fa-exchange-alt';
-  return '<tr>' +
-    '<td>' + formatearFechaArg(m.fecha + 'T00:00:00') + '</td>' +
-    '<td><span class="badge ' + tipoClass + '"><i class="fas ' + tipoIcon + '"></i> ' + m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1) + '</span></td>' +
-    '<td>' + m.articulo + '</td>' +
-    '<td>' + formatearNumero(m.cantidad) + '</td>' +
-    '<td>' + m.origen + '</td>' +
-    '<td>' + m.destino + '</td>' +
+  return '<tr class="mov-row ' + m.tipo + '">' +
+    '<td data-label="Fecha">' + formatearFechaArg(m.fecha + 'T00:00:00') + '</td>' +
+    '<td data-label="Tipo"><span class="badge ' + tipoClass + '"><i class="fas ' + tipoIcon + '"></i> ' + m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1) + '</span></td>' +
+    '<td data-label="Articulo" class="td-articulo">' + m.articulo + '</td>' +
+    '<td data-label="Cantidad">' + formatearNumero(m.cantidad) + '</td>' +
+    '<td data-label="Origen">' + m.origen + '</td>' +
+    '<td data-label="Destino">' + m.destino + '</td>' +
     '</tr>';
 }
 
 function rowHTMLConAccion(m) {
   const tipoClass = m.tipo === 'ingreso' ? 'badge-ingreso' : 'badge-transferencia';
   const tipoIcon = m.tipo === 'ingreso' ? 'fa-arrow-down' : 'fa-exchange-alt';
-  return '<tr>' +
-    '<td>' + formatearFechaArg(m.fecha + 'T00:00:00') + '</td>' +
-    '<td><span class="badge ' + tipoClass + '"><i class="fas ' + tipoIcon + '"></i> ' + m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1) + '</span></td>' +
-    '<td>' + m.articulo + '</td>' +
-    '<td>' + formatearNumero(m.cantidad) + '</td>' +
-    '<td>' + m.origen + '</td>' +
-    '<td>' + m.destino + '</td>' +
-    '<td>' + (m.obs || '-') + '</td>' +
-    '<td class="no-print"><div class="row-actions"><button class="btn btn-outline btn-sm" onclick="editarMovimiento(' + m.id + ')" title="Editar"><i class="fas fa-pen"></i></button><button class="btn btn-outline btn-sm" onclick="eliminarMovimiento(' + m.id + ')" title="Eliminar"><i class="fas fa-trash"></i></button></div></td>' +
+  return '<tr class="mov-row ' + m.tipo + '">' +
+    '<td data-label="Fecha">' + formatearFechaArg(m.fecha + 'T00:00:00') + '</td>' +
+    '<td data-label="Tipo"><span class="badge ' + tipoClass + '"><i class="fas ' + tipoIcon + '"></i> ' + m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1) + '</span></td>' +
+    '<td data-label="Articulo" class="td-articulo">' + m.articulo + '</td>' +
+    '<td data-label="Cantidad">' + formatearNumero(m.cantidad) + '</td>' +
+    '<td data-label="Origen">' + m.origen + '</td>' +
+    '<td data-label="Destino">' + m.destino + '</td>' +
+    '<td data-label="Obs.">' + (m.obs || '-') + '</td>' +
+    '<td class="no-print td-actions" data-label=""><div class="row-actions"><button class="btn btn-outline btn-sm" onclick="editarMovimiento(' + m.id + ')" title="Editar"><i class="fas fa-pen"></i></button><button class="btn btn-outline btn-sm" onclick="eliminarMovimiento(' + m.id + ')" title="Eliminar"><i class="fas fa-trash"></i></button></div></td>' +
     '</tr>';
 }
 
